@@ -1,5 +1,6 @@
 
 from flask import Flask, jsonify
+from flask_cors import CORS
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from sqlalchemy import Column
@@ -12,6 +13,7 @@ from uuid import uuid4
 
 # Creating the flask app
 app = Flask(__name__)
+CORS(app)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///game.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
@@ -85,20 +87,21 @@ def start_game(room_number):
         return "Room does not contain two players, please invite someone else", 400
 
     # Check if there is already a game in this room
-    game = db.session.query(Game).filter_by(room=room_number).first()
-    if game is not None:
+    db_game: DBGame = db.session.query(
+        DBGame).filter_by(room=room_number).first()
+    if db_game is not None:
         return "Game is already in progress", 400
 
     # Create a new game in the database
-    game = Game(uuid4(), Deck())
+    game = Game(str(uuid4()), Deck())
 
     game.start()
     status = game.check_status()
 
     # store the game in the database
-    db_game = DBGame(id=str(game.id), room=room_number,
-                     game_data=game.to_json())
-    db.session.add(db_game)
+    new_db_game = DBGame(id=str(game.game_id), room=room_number,
+                         game_data=json.dumps(game.to_json()))
+    db.session.add(new_db_game)
     db.session.commit()
 
     return status
@@ -112,6 +115,12 @@ def start_game(room_number):
 @app.route('/status/<room_number>', methods=['GET'])
 def get_game_status(room_number):
     user_id = "123"
+
+    # Check if the room exists
+    room: DBRoom = db.session.query(DBRoom).filter_by(id=room_number).first()
+    if room is None:
+        return "Room does not exist", 400
+
     # Check if the user is the dealer of this room by quering the db
     db_room: DBRoom = db.session.query(
         DBRoom).filter_by(id=room_number).first()
@@ -119,37 +128,32 @@ def get_game_status(room_number):
         return "You are not part of this room", 400
 
     # Check if there is already a game in this room
-    db_game: Game = db.session.query(Game).filter_by(room=room_number).first()
+    db_game: DBGame = db.session.query(
+        DBGame).filter_by(room=room_number).first()
     if db_game is None:
         return "No game in progress", 400
 
     current_player_type = PlayerType.DEALER if db_room.dealer == user_id else PlayerType.PLAYER
 
-    game: Game = Game.from_json(db_game.game_data)
+    game: Game = Game.from_json(json.loads(db_game.game_data))
     status: GameStatus = game.check_status()
 
     if status == GameStatus.PLAYING:
-        if current_player_type == PlayerType.PLAYER:
-            return jsonify({
-                "current_player": "player",
-                "dealer_hand": game.dealer_hand.get_visable_cards(),
-                "player_hand": game.player_hand
-            })
-        else:
-            return jsonify({
-                "current_player": "dealer",
-                "dealer_hand": game.dealer_hand,
-                "player_hand": game.player_hand
-            })
+        return jsonify({
+            "current_player": game.current_player.name,
+            "dealer_hand": game.dealer_hand.get_visable_cards() if current_player_type == PlayerType.PLAYER else game.dealer_hand.to_json(),
+            "player_hand": game.player_hand.to_json(),
+            "status": status.name
+        })
     else:
         return jsonify({
-            "winner": status,
-            "dealer_hand": game.dealer_hand,
-            "player_hand": game.player_hand
+            "dealer_hand": game.dealer_hand.to_json(),
+            "player_hand": game.player_hand.to_json(),
+            "status": status.name
         })
 
 
-@app.route('/<test>')
+@app.route('/test/<test>')
 def index(test):
     print(app.config['SQLALCHEMY_DATABASE_URI'])
     print(test)

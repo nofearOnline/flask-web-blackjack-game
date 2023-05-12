@@ -1,6 +1,7 @@
 import json
 import random
 import enum
+from typing import List
 
 
 class PlayerType(enum.Enum):
@@ -16,9 +17,10 @@ def toggle_player_type(player_type):
 
 class GameStatus(enum.Enum):
     PLAYING = 0
-    PLAYER_WON = 1
-    DEALER_WON = 2
-    TIE = 3
+    FORMAL_END = 1
+    PLAYER_WON = 2
+    DEALER_WON = 3
+    TIE = 4
 
 
 class Card:
@@ -90,7 +92,7 @@ class Hand:
         "king": 10,
     }
 
-    def __init__(self, cards: list):
+    def __init__(self, cards: List[Card]):
         self.cards = cards
 
     @classmethod
@@ -113,7 +115,7 @@ class Hand:
         return total
 
     def get_visable_cards(self):
-        return [card for card in self.cards if card.visible_for_player]
+        return [card.to_json() for card in self.cards if card.visible_for_player]
 
     def to_json(self):
         return [card.to_json() for card in self.cards]
@@ -150,32 +152,31 @@ class Game:
             self.dealer_hand.add_card(self.deck.draw())
         self.current_player = toggle_player_type(self.current_player)
 
-    def check_status(self):
+    # This function checks if the game is over, only in case
+    def check_status(self) -> GameStatus:
         if self.player_hand.sum_score() > 21:
-            self.status = "dealer_win"
-            return "dealer_win"
+            self.status = GameStatus.DEALER_WON
         elif self.dealer_hand.sum_score() > 21:
-            self.status = "player_win"
-            return "player_win"
-        else:
-            return "playing"
+            self.status = GameStatus.DEALER_WON
+        elif self.status == GameStatus.FORMAL_END:
+            self.status = self.check_who_won()
+        return self.status
 
-    def check_who_won(self):
+    def check_who_won(self) -> GameStatus:
         player_score = self.player_hand.sum_score()
         dealer_score = self.dealer_hand.sum_score()
 
         # Only one player can get more score than 21 each round
         if player_score > 21:
-            self.status = "dealer_win"
-            return "dealer_win"
+            return GameStatus.DEALER_WON
         elif dealer_score > 21:
-            self.status = "player_win"
+            return GameStatus.PLAYER_WON
         elif player_score > dealer_score:
-            return "Player wins!"
+            return GameStatus.PLAYER_WON
         elif player_score < dealer_score:
-            return "Dealer wins!"
+            return GameStatus.DEALER_WON
         else:
-            return "Tie!"
+            return GameStatus.TIE
 
     def to_json(self):
         return {"id": self.game_id, "deck": self.deck.to_json(), "player_hand": self.player_hand.to_json(), "dealer_hand": self.dealer_hand.to_json(), "status": self.status.value, "current_player": self.current_player.value}
