@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Online Blackjack</title>
+	<style>
+		body {
+			background-color: #f2f2f2;
+			font-family: Arial, sans-serif;
+			font-size: 16px;
+			margin: 0;
+			padding: 0;
+		}
+		header {
+			background-color: #333;
+			color: #fff;
+			display: flex;
+			justify-content: space-between;
+			padding: 10px;
+		}
+		header h1 {
+			margin: 0;
+		}
+		header button {
+			background-color: #4CAF50;
+			border: none;
+			border-radius: 3px;
+			color: #fff;
+			cursor: pointer;
+			font-size: 16px;
+			padding: 10px;
+		}
+		header button:hover {
+			background-color: #3e8e41;
+		}
+		main {
+			align-items: center;
+			display: flex;
+			flex-direction: column;
+			justify-content: center;
+			height: calc(100vh - 60px);
+			width: 100%;
+		}
+		button {
+			background-color: #4CAF50;
+			border: none;
+			border-radius: 3px;
+			color: #fff;
+			cursor: pointer;
+			margin: 10px;
+			padding: 10px;
+		}
+    .option{
+      display: flex;
+      justify-content: space-around;
+      width: 50%;
+      font-size: 24px;
+      padding: 40px;
+      margin: 50px;
+    }
+    .login_button{
+      font-size: 16px;
+      width: 200px;
+    }
+		button:hover {
+			background-color: #3e8e41;
+		}
+	</style>
+</head>
+<body>
+	<header>
+		<h1>Online Blackjack</h1>
+		<button id="login-button" class="login_button">Login</button>
+	</header>
+	<main>
+		<button id="create-room-button" class="option">Create Room</button>
+		<button id="join-room-button" class="option">Join Room</button>
+	</main>
+
+	<script>
+		// Add JavaScript code here to handle login/logout, create room, and join room buttons
+	</script>
+</body>
+</html>

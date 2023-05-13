@@ -23,6 +23,16 @@ class GameStatus(enum.Enum):
     TIE = 4
 
 
+class HandStatus(enum.Enum):
+    NOT_STAND = 0
+    STAND = 1
+
+
+class Action(enum.Enum):
+    HIT = 0
+    STAND = 1
+
+
 class Card:
     def __init__(self, rank, suit, visible_for_player=True, value=None):
         self.rank = rank
@@ -92,12 +102,14 @@ class Hand:
         "king": 10,
     }
 
-    def __init__(self, cards: List[Card]):
+    def __init__(self, cards: List[Card], status=HandStatus.NOT_STAND):
         self.cards = cards
+        self.status = status
 
     @classmethod
-    def from_json(cls, json_dict):
-        hand = cls([Card.from_json(card_json) for card_json in json_dict])
+    def from_json(cls, hand_dict):
+        hand = cls([Card.from_json(card_json)
+                   for card_json in hand_dict["cards"]], HandStatus(hand_dict['status']))
         return hand
 
     def add_card(self, card):
@@ -118,7 +130,7 @@ class Hand:
         return [card.to_json() for card in self.cards if card.visible_for_player]
 
     def to_json(self):
-        return [card.to_json() for card in self.cards]
+        return {"cards": [card.to_json() for card in self.cards], "status": self.status.value}
 
 
 class Game:
@@ -147,17 +159,54 @@ class Game:
         self.player_hand.add_card(self.deck.deal())
         self.dealer_hand.add_card(self.deck.deal())
 
-    def turn(self, player):
-        while self.dealer_hand.value() < 17:
-            self.dealer_hand.add_card(self.deck.draw())
-        self.current_player = toggle_player_type(self.current_player)
+    def turn(self, current_player_type, action):
+        """This function is the logic of a turn in the game
+        There are a lot of cases and in each case the function should do different things:
+
+        # TODO Lilach: add all of the possible cases
+
+        Keyword arguments:
+        current_player_type -- The current player who is playing
+        action -- The action that the player wants to do
+        Return: Error/None
+        """
+
+        turn_moved = True
+        # Check if it is the player's turn
+        if self.current_player != current_player_type:
+            return "Not your turn"
+
+        if action == Action.HIT.name:
+            if current_player_type == PlayerType.PLAYER:
+                if self.player_hand.status == HandStatus.STAND:
+                    return "You standed so you can't hit"
+                if self.dealer_hand.status == HandStatus.STAND:
+                    turn_moved = False
+                self.player_hand.add_card(self.deck.deal())
+            else:
+                if self.dealer_hand.status == HandStatus.STAND:
+                    return "You standed so you can't hit"
+                if self.player_hand.status == HandStatus.STAND:
+                    turn_moved = False
+                self.dealer_hand.add_card(self.deck.deal())
+        elif action == Action.STAND.name:
+            if current_player_type == PlayerType.PLAYER:
+                self.player_hand.status = HandStatus.STAND
+            else:
+                self.dealer_hand.status = HandStatus.STAND
+
+        if self.player_hand.status == HandStatus.STAND and self.dealer_hand.status == HandStatus.STAND:
+            self.status = GameStatus.FORMAL_END
+
+        if turn_moved:
+            self.current_player = toggle_player_type(self.current_player)
 
     # This function checks if the game is over, only in case
     def check_status(self) -> GameStatus:
         if self.player_hand.sum_score() > 21:
             self.status = GameStatus.DEALER_WON
         elif self.dealer_hand.sum_score() > 21:
-            self.status = GameStatus.DEALER_WON
+            self.status = GameStatus.PLAYER_WON
         elif self.status == GameStatus.FORMAL_END:
             self.status = self.check_who_won()
         return self.status

@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Online Blackjack Signup</title>
+	<style>
+		body {
+			background-color: #f2f2f2;
+			font-family: Arial, sans-serif;
+			font-size: 16px;
+		}
+		form {
+			background-color: #fff;
+			border: 1px solid #ccc;
+			border-radius: 5px;
+			box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+			margin: 20px auto;
+			max-width: 500px;
+			padding: 20px;
+		}
+		h1 {
+			text-align: center;
+		}
+		label {
+			display: block;
+			margin-bottom: 10px;
+		}
+		input[type="text"], input[type="password"] {
+			border: 1px solid #ccc;
+			border-radius: 3px;
+			box-sizing: border-box;
+			font-size: 16px;
+			margin-bottom: 20px;
+			padding: 10px;
+			width: 100%;
+		}
+		button {
+			background-color: #4CAF50;
+			border: none;
+			border-radius: 3px;
+			color: #fff;
+			cursor: pointer;
+			font-size: 16px;
+			padding: 10px;
+			width: 100%;
+		}
+		button:hover {
+			background-color: #3e8e41;
+		}
+	</style>
+
+  
+</head>
+<body>
+	<form id="signup-form">
+		<h1>Signup for Online Blackjack</h1>
+		<label for="username">Username</label>
+		<input type="text" id="username" name="username" required>
+    <label for="email">Email</label>
+		<input type="text" id="email" name="email" required>
+		<label for="password">Password</label>
+		<input type="password" id="password" name="password" required>
+		<button type="submit" id="submit-button">Signup</button>
+	</form>
+</body>
+
+
+<script>
+  // Add JavaScript code here to handle form submission, validation, etc.
+
+  // Get a reference to the form and submit button
+  const form = document.getElementById('signup-form');
+  const submitButton = document.getElementById('submit-button');
+
+  // Add an event listener to the form's submit event
+  form.addEventListener('submit', (event) => {
+    // Prevent the default form submission behavior
+    event.preventDefault();
+
+    // Add your own JavaScript code here to handle form submission
+    console.log('Form submitted!');
+    console.log('Username:', form.username.value);
+    console.log('Email:', form.email.value);
+    console.log('Password:', form.password.value);
+
+    // You can also use AJAX to submit the form data to your server without reloading the page
+    // For example:
+    const formData = new FormData(form);
+    fetch('/register', {
+      method: 'POST',
+      body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.error){
+        alert(data.error);
+      } else {
+        alert('Signup successful!');
+        token = data
+        // Save the token to localStorage
+        localStorage.setItem("Token", token);
+
+        // Redirect to the home page
+        window.location.href = '/';
+      }
+      console.log('Signup successful:', data);
+    })
+    // form.reset();
+  });
+</script>
+</html>

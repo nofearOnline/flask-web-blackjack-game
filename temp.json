@@ -1,0 +1,271 @@
+{
+  "id": "fe883f88-e6d2-4edf-8419-f8a1bbdcacfd",
+  "deck": [
+    {
+      "rank": "10",
+      "suit": "club",
+      "visible_for_player": true
+    },
+    {
+      "rank": "1",
+      "suit": "club",
+      "visible_for_player": true
+    },
+    {
+      "rank": "1",
+      "suit": "diamond",
+      "visible_for_player": true
+    },
+    {
+      "rank": "5",
+      "suit": "diamond",
+      "visible_for_player": true
+    },
+    {
+      "rank": "6",
+      "suit": "diamond",
+      "visible_for_player": true
+    },
+    {
+      "rank": "4",
+      "suit": "spade",
+      "visible_for_player": true
+    },
+    {
+      "rank": "queen",
+      "suit": "diamond",
+      "visible_for_player": true
+    },
+    {
+      "rank": "10",
+      "suit": "heart",
+      "visible_for_player": true
+    },
+    {
+      "rank": "jack",
+      "suit": "diamond",
+      "visible_for_player": true
+    },
+    {
+      "rank": "7",
+      "suit": "heart",
+      "visible_for_player": true
+    },
+    {
+      "rank": "king",
+      "suit": "heart",
+      "visible_for_player": true
+    },
+    {
+      "rank": "3",
+      "suit": "diamond",
+      "visible_for_player": true
+    },
+    {
+      "rank": "9",
+      "suit": "club",
+      "visible_for_player": true
+    },
+    {
+      "rank": "king",
+      "suit": "spade",
+      "visible_for_player": true
+    },
+    {
+      "rank": "1",
+      "suit": "heart",
+      "visible_for_player": true
+    },
+    {
+      "rank": "2",
+      "suit": "diamond",
+      "visible_for_player": true
+    },
+    {
+      "rank": "3",
+      "suit": "heart",
+      "visible_for_player": true
+    },
+    {
+      "rank": "3",
+      "suit": "club",
+      "visible_for_player": true
+    },
+    {
+      "rank": "7",
+      "suit": "spade",
+      "visible_for_player": true
+    },
+    {
+      "rank": "9",
+      "suit": "spade",
+      "visible_for_player": true
+    },
+    {
+      "rank": "queen",
+      "suit": "spade",
+      "visible_for_player": true
+    },
+    {
+      "rank": "5",
+      "suit": "spade",
+      "visible_for_player": true
+    },
+    {
+      "rank": "king",
+      "suit": "club",
+      "visible_for_player": true
+    },
+    {
+      "rank": "9",
+      "suit": "diamond",
+      "visible_for_player": true
+    },
+    {
+      "rank": "7",
+      "suit": "club",
+      "visible_for_player": true
+    },
+    {
+      "rank": "1",
+      "suit": "spade",
+      "visible_for_player": true
+    },
+    {
+      "rank": "6",
+      "suit": "club",
+      "visible_for_player": true
+    },
+    {
+      "rank": "4",
+      "suit": "heart",
+      "visible_for_player": true
+    },
+    {
+      "rank": "10",
+      "suit": "spade",
+      "visible_for_player": true
+    },
+    {
+      "rank": "9",
+      "suit": "heart",
+      "visible_for_player": true
+    },
+    {
+      "rank": "5",
+      "suit": "club",
+      "visible_for_player": true
+    },
+    {
+      "rank": "5",
+      "suit": "heart",
+      "visible_for_player": true
+    },
+    {
+      "rank": "8",
+      "suit": "club",
+      "visible_for_player": true
+    },
+    {
+      "rank": "jack",
+      "suit": "spade",
+      "visible_for_player": true
+    },
+    {
+      "rank": "6",
+      "suit": "spade",
+      "visible_for_player": true
+    },
+    {
+      "rank": "queen",
+      "suit": "club",
+      "visible_for_player": true
+    },
+    {
+      "rank": "king",
+      "suit": "diamond",
+      "visible_for_player": true
+    },
+    {
+      "rank": "6",
+      "suit": "heart",
+      "visible_for_player": true
+    },
+    {
+      "rank": "8",
+      "suit": "spade",
+      "visible_for_player": true
+    },
+    {
+      "rank": "4",
+      "suit": "club",
+      "visible_for_player": true
+    },
+    {
+      "rank": "2",
+      "suit": "spade",
+      "visible_for_player": true
+    },
+    {
+      "rank": "jack",
+      "suit": "club",
+      "visible_for_player": true
+    },
+    {
+      "rank": "8",
+      "suit": "heart",
+      "visible_for_player": true
+    },
+    {
+      "rank": "4",
+      "suit": "diamond",
+      "visible_for_player": true
+    },
+    {
+      "rank": "jack",
+      "suit": "heart",
+      "visible_for_player": true
+    },
+    {
+      "rank": "queen",
+      "suit": "heart",
+      "visible_for_player": true
+    },
+    {
+      "rank": "7",
+      "suit": "diamond",
+      "visible_for_player": true
+    }
+  ],
+  "player_hand": [
+    {
+      "rank": "8",
+      "suit": "diamond",
+      "visible_for_player": true
+    },
+    {
+      "rank": "10",
+      "suit": "diamond",
+      "visible_for_player": true
+    }
+  ],
+  "dealer_hand": [
+    {
+      "rank": "3",
+      "suit": "spade",
+      "visible_for_player": false
+    },
+    {
+      "rank": "2",
+      "suit": "club",
+      "visible_for_player": true
+    },
+    {
+      "rank": "2",
+      "suit": "heart",
+      "visible_for_player": true
+    }
+  ],
+  "status": 0,
+  "current_player": 1
+}
