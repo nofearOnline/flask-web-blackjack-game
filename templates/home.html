@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
 	<meta charset="UTF-8">
 	<title>Online Blackjack</title>
@@ -11,6 +12,7 @@
 			margin: 0;
 			padding: 0;
 		}
+
 		header {
 			background-color: #333;
 			color: #fff;
@@ -18,9 +20,11 @@
 			justify-content: space-between;
 			padding: 10px;
 		}
+
 		header h1 {
 			margin: 0;
 		}
+
 		header button {
 			background-color: #4CAF50;
 			border: none;
@@ -30,9 +34,11 @@
 			font-size: 16px;
 			padding: 10px;
 		}
+
 		header button:hover {
 			background-color: #3e8e41;
 		}
+
 		main {
 			align-items: center;
 			display: flex;
@@ -41,6 +47,7 @@
 			height: calc(100vh - 60px);
 			width: 100%;
 		}
+
 		button {
 			background-color: #4CAF50;
 			border: none;
@@ -50,27 +57,33 @@
 			margin: 10px;
 			padding: 10px;
 		}
-    .option{
-      display: flex;
-      justify-content: space-around;
-      width: 50%;
-      font-size: 24px;
-      padding: 40px;
-      margin: 50px;
-    }
-    .login_button{
-      font-size: 16px;
-      width: 200px;
-    }
+
+		.option {
+			display: flex;
+			justify-content: space-around;
+			width: 50%;
+			font-size: 24px;
+			padding: 40px;
+			margin: 50px;
+			display: none;
+		}
+
+		.login_button {
+			font-size: 16px;
+			width: 200px;
+			display: none;
+		}
+
 		button:hover {
 			background-color: #3e8e41;
 		}
 	</style>
 </head>
+
 <body>
-	<header>
+	<header id="header">
 		<h1>Online Blackjack</h1>
-		<button id="login-button" class="login_button">Login</button>
+		<button id="log-button" class="login_button">Login</button>
 	</header>
 	<main>
 		<button id="create-room-button" class="option">Create Room</button>
@@ -79,6 +92,77 @@
 
 	<script>
 		// Add JavaScript code here to handle login/logout, create room, and join room buttons
+		// Check if user is logged in using the /user endpoint
+		fetch("http://localhost:5000/api/user", {
+			method: "GET",
+			headers: {
+				"Content-Type": "application/json",
+				"Authorization": localStorage.getItem("Token")
+			},
+		}).catch(error => {
+			console.log(error);
+		}).then(userResponse => {
+			if (userResponse.status == 200) {
+				// User is logged in
+				document.getElementById("log-button").innerHTML = "Logout";
+				document.getElementById("log-button").style.display = "block";
+				document.getElementById("log-button").addEventListener("click", () => {
+					localStorage.removeItem("Token");
+					window.location.href = "/";
+				});
+
+				document.getElementById("create-room-button").style.display = "block";
+				document.getElementById("create-room-button").addEventListener("click", () => {
+					fetch("http://localhost:5000/api/room", {
+						method: "POST",
+						headers: {
+							"Authorization": localStorage.getItem("Token"),
+						}
+					}).catch(error => {
+						console.log(error);
+					}).then(createRoomResponse => {
+						if (createRoomResponse.status == 201) {
+							createRoomResponse.json().then(jsonRes => {
+								window.location.href = "/room" + jsonRes.room_id;
+							})
+						}
+						else {
+							alert(jsonRes.error);
+						}
+					})
+				});
+
+				document.getElementById("join-room-button").style.display = "block";
+				document.getElementById("join-room-button").addEventListener("click", () => {
+					var roomId = prompt("Please enter the room id:");
+					if (roomId != null) {
+						fetch("http://localhost:5000/api/join/" + roomId, {
+							method: "POST",
+							headers: {
+								"Authorization": localStorage.getItem("Token"),
+							}
+						}).catch(error => {
+							console.log(error);
+						}).then(response => {
+							if (response.status == 200) {
+								window.location.href = "/room" + roomId;
+							} else {
+								alert("Room does not exist");
+							}
+						})
+					}
+				});
+
+			} else {
+				// User is not logged in
+				document.getElementById("log-button").style.display = "block";
+				document.getElementById("log-button").addEventListener("click", () => {
+					window.location.href = "/login";
+				});
+			}
+		});
+
 	</script>
 </body>
+
 </html>

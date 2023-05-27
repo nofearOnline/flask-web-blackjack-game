@@ -127,7 +127,7 @@ class Hand:
         return total
 
     def get_visable_cards(self):
-        return [card.to_json() for card in self.cards if card.visible_for_player]
+        return {"cards": [card.to_json() for card in self.cards if card.visible_for_player]}
 
     def to_json(self):
         return {"cards": [card.to_json() for card in self.cards], "status": self.status.value}

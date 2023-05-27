@@ -96,11 +96,11 @@
         alert(data.error);
       } else {
         alert('Signup successful!');
-        token = data
+        token = data.token
+				console.log(typeof token);
         // Save the token to localStorage
         localStorage.setItem("Token", token);
 
-        // Redirect to the home page
         window.location.href = '/';
       }
       console.log('Signup successful:', data);

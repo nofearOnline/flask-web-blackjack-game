@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Login - Online Blackjack</title>
+	<style>
+		body {
+			background-color: #f2f2f2;
+			font-family: Arial, sans-serif;
+			font-size: 16px;
+			margin: 0;
+			padding: 0;
+		}
+		.container {
+			align-items: center;
+			display: flex;
+			justify-content: center;
+			height: 100vh;
+		}
+		.login-box {
+			background-color: #fff;
+			border: 1px solid #ccc;
+			border-radius: 5px;
+			box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+			padding: 20px;
+			width: 300px;
+		}
+		h1 {
+			margin: 0;
+			text-align: center;
+		}
+		label {
+			display: block;
+			margin-top: 20px;
+		}
+		input[type="text"], input[type="password"] {
+			border: 1px solid #ccc;
+			border-radius: 3px;
+			box-sizing: border-box;
+			font-size: 16px;
+			margin-top: 5px;
+			padding: 10px;
+			width: 100%;
+		}
+		button {
+			background-color: #4CAF50;
+			border: none;
+			border-radius: 3px;
+			color: #fff;
+			cursor: pointer;
+			font-size: 16px;
+			margin-top: 20px;
+			padding: 10px;
+			width: 100%;
+		}
+		button:hover {
+			background-color: #3e8e41;
+		}
+	</style>
+</head>
+<body>
+	<div class="container">
+		<div class="login-box">
+			<h1>Login</h1>
+			<form id="login-form">
+				<label for="username">Username</label>
+				<input type="text" id="username" name="username" required>
+				<label for="password">Password</label>
+				<input type="password" id="password" name="password" required>
+				<button type="submit">Login</button>
+			</form>
+		</div>
+	</div>
+
+	<script>
+    // When the form is submitted, send a POST request to the server with the
+    // username and password in the body of the request. If the login is
+    // successful, redirect the user to the home page. If the login is
+    // unsuccessful, display an error message to the user.
+    const loginForm = document.getElementById('login-form');
+    loginForm.addEventListener('submit', (event) => {
+      event.preventDefault();
+      const username = document.getElementById('username').value;
+      const password = document.getElementById('password').value;
+      const data = { username, password };
+      fetch('/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      })
+        .then((response) => response.json().then((jsonRes) => {
+          if (response.status === 200) {
+            localStorage.setItem('Token', jsonRes.token);
+            window.location.href = '/';
+          } else {
+            alert(jsonRes.error)
+          }
+        })
+        .catch((error) => {
+          console.error(error);
+        }));
+    });
+	</script>
+</body>
+</html>
