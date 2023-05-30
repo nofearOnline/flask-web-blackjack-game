@@ -285,7 +285,10 @@
         }
         UpdateStandStatus(data)
 
-        handleVictory(data.status)
+        setTimeout(() => {
+          handleVictory(data.status)
+        }, 1000);
+
       });
 
   }
