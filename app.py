@@ -97,11 +97,10 @@ def create_room(user_id):
     return jsonify({"room_id": str(new_room_id)}), 201
 
 
-@app.route('/api/room/<room_id>', methods=['GET'])
+@app.route('/api/room/status/<room_id>', methods=['GET'])
 @authenticated
-def waiting_room_data(room_id, user_id):
-    # CONNECT DATABASE, get the game
-    # return the game
+def waiting_room_status(room_id, user_id):
+    # Check if there is a game in this room
     if room_id is None:
         return jsonify({
             "error": "Room not found"
@@ -116,28 +115,20 @@ def waiting_room_data(room_id, user_id):
             "error": "You are not part of this room"
         }), 400
 
+    db_game: DBGame = db.session.query(
+        DBGame).filter_by(room=room_id).first()
+    if db_game is None:
+        game_status = "Game not started"
+    else:
+        game_status = "Game started"
+
     return jsonify({
         "room_id": room_id,
         "dealer_id": db_room.dealer,
         "player_id": db_room.player,
-        "user_id": user_id
+        "user_id": user_id,
+        "status": game_status
     }), 200
-
-
-@app.route('/api/room/status/<room_id>', methods=['GET'])
-@authenticated
-def waiting_room_status(room_id, user_id):
-    # Check if there is a game in this room
-    db_game: DBGame = db.session.query(
-        DBGame).filter_by(room=room_id).first()
-    if db_game is None:
-        return jsonify({
-            "status": "Game not started"
-        }), 200
-    else:
-        return jsonify({
-            "status": "Game started"
-        }), 200
 
 
 @app.route('/api/join/<room_id>', methods=['POST'])
@@ -151,7 +142,7 @@ def join_player_to_room(room_id, user_id):
         return jsonify({
             "error": "Room not found"
         }), 404
-    if room.player is not None:
+    if room.player is not None and user_id not in [room.player, room.dealer]:
         return jsonify({
             "error": "Room is full"
         }), 400
@@ -253,7 +244,7 @@ def get_game_status(room_id, user_id):
             "error": "No game in progress"
         }), 400
 
-    current_player_type = get_player_type_from_id_and_room(user_id, db_room)
+    requestor_player_type = get_player_type_from_id_and_room(user_id, db_room)
 
     game: Game = Game.from_json(json.loads(db_game.game_data))
     status: GameStatus = game.check_status()
@@ -261,26 +252,22 @@ def get_game_status(room_id, user_id):
     response = {
         "this_player": user_id,
         "other_player": db_room.player if user_id == db_room.dealer else db_room.dealer,
-        "status": status.name
+        "status": status.name,
+        "is_your_turn": game.current_player == requestor_player_type,
+        "are_you_dealer": requestor_player_type == PlayerType.DEALER,
     }
 
-    if status == GameStatus.PLAYING:
-        if user_id == db_room.player:
-            return jsonify({
-                **response,
-                "this_player_hand": game.player_hand.to_json(),
-                "other_player_hand": game.dealer_hand.get_visable_cards(),
-            })
-        else:
-            return jsonify({
-                **response,
-                "this_player_hand": game.dealer_hand.to_json(),
-                "other_player_hand": game.player_hand.to_json(),
-            })
+    if user_id == db_room.player:
+        return jsonify({
+            **response,
+            "this_player_hand": game.player_hand.to_json(),
+            "other_player_hand": game.dealer_hand.get_visable_cards() if status == GameStatus.PLAYING else game.dealer_hand.to_json(),
+        })
     else:
         return jsonify({
-            "dealer_hand": game.dealer_hand.to_json(),
-            "player_hand": game.player_hand.to_json(),
+            **response,
+            "this_player_hand": game.dealer_hand.to_json(),
+            "other_player_hand": game.player_hand.to_json(),
         })
 
 
@@ -333,7 +320,7 @@ def make_turn(room_id, user_id):
     db_game.game_data = json.dumps(game.to_json())
     db.session.commit()
 
-    return "OK"
+    return jsonify({"success": True})
 
 
 # region admin

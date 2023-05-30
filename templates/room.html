@@ -51,9 +51,9 @@
 <body>
   <div class="container">
     <div class="room-info">
-      <h2 id="room-id">Room ID: </h2>
-      <h3 id="dealer-id">Dealer ID: </h3>
-      <h3 id="player_id">Other Player ID: </h3>
+      <h2 id="room-id"></h2>
+      <h3 id="dealer-id"></h3>
+      <h3 id="player_id"></h3>
     </div>
     <div class="button-container">
       <button class="start-button" style="display: none;">Start Game</button>
@@ -62,38 +62,8 @@
 </body>
 
 <script>
-  room_id = "{{room_id}}"
-  fetch('/api/room/' + room_id, {
-    method: 'GET',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': localStorage.getItem('Token')
-    }
-  }).catch(err => console.log(err))
-    .then(res => res.json())
-    .then(data => {
-      if (data.error) {
-        alert(data.error)
-        window.location.href = '/'
-      }
-      else {
-        document.querySelector('#room-id').innerHTML += data.room_id
-        document.querySelector('#dealer-id').innerHTML += data.dealer_id
-        if (data.user_id == data.dealer_id) {
-          document.querySelector('.start-button').style.display = 'block'
-        }
-        if (!data.player_id) {
-          document.querySelector('#player_id').innerHTML += 'Waiting for other player to join'
-        }
-        else {
-          document.querySelector('#player_id').innerHTML += data.player_id
-        }
-
-      }
-    })
-
-  var roomStatusCheckInterval = setInterval(function () {
-    // Make the API request or perform desired action
+  function updateInformation() {
+    room_id = "{{room_id}}"
     fetch("http://localhost:5000/api/room/status/" + room_id,
       {
         headers: {
@@ -111,12 +81,33 @@
           // Redirect to the game page
           window.location.href = "/game/" + room_id;
         }
+        if (document.querySelector('#room-id').innerHTML != "Room ID: " + data.room_id) {
+          document.querySelector('#room-id').innerHTML = "Room ID: " + data.room_id
+        }
+        if (document.querySelector('#dealer-id').innerHTML != "Dealer ID: " + data.dealer_id) {
+          document.querySelector('#dealer-id').innerHTML = "Dealer ID: " + data.dealer_id
+        }
+        if (data.user_id == data.dealer_id && data.player_id) {
+          document.querySelector('.start-button').style.display = 'block'
+        }
+        if (!data.player_id) {
+          document.querySelector('#player_id').innerHTML = 'Waiting for other player to join'
+        }
+        else {
+          document.querySelector('#player_id').innerHTML = "Other Player ID: " + data.player_id
+        }
       })
       .catch(error => {
         // Handle any errors that occurred during the API request
         console.error(error);
       });
-  }, 10000);
+  }
+
+  updateInformation()
+  var roomStatusCheckInterval = setInterval(function () {
+    // Make the API request or perform desired action
+    updateInformation()
+  }, 1000);
 
   // Set start game button event listener
   startButton = document.querySelector('.start-button')

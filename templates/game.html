@@ -32,8 +32,48 @@
       font-weight: bold;
     }
 
+    .action-panel {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+    }
+
+    #stand-status {
+      position: absolute;
+      top: 50%;
+      left: 30%;
+      transform: translate(-50%, -50%);
+      background-color: #333;
+      color: #fff;
+      padding: 10px 20px;
+      border-radius: 5px;
+      font-size: 24px;
+      text-align: center;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+    }
+
+    #stand-status .text {
+      font-weight: bold;
+    }
+
     .deck {
-      margin-left: 400px
+      margin-left: 400px;
+    }
+
+    .stand-button {
+      background-color: #4CAF50;
+      cursor: pointer;
+      border: none;
+      border-radius: 3px;
+      color: #fff;
+      margin: 10px;
+      padding: 10px;
+    }
+
+    .stand-button:disabled,
+    button[disabled] {
+      cursor: not-allowed;
+      background-color: #98ad99;
     }
 
     .cards {
@@ -47,8 +87,8 @@
       border: 1px solid #ccc;
       border-radius: 5px;
       box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
-      width: 80px;
-      height: 120px;
+      width: 120px;
+      height: 160px;
       margin: 0px 10px;
     }
   </style>
@@ -64,9 +104,14 @@
       </div>
     </div>
 
-    <div class="deck">
-      <img src="http://localhost:5000/static/cards/back.png" alt="Deck Image" width="120">
+    <div class="action-panel">
+      <button id="stand-status">Other player did not Stand yet</button>
+      <div class="deck" id="deck">
+        <img src="http://localhost:5000/static/cards/back.png" alt="Deck Image" width="120px" height="160px">
+      </div>
+      <button class="stand-button" onclick="onStandPressed()" id="stand-button" disabled>STAND</button>
     </div>
+
 
 
     <div class="player">
@@ -80,40 +125,175 @@
 </body>
 
 <script>
-  fetch('http://localhost:5000/api/game/status/{{room_id}}',
-    {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': localStorage.getItem('Token')
-      }
-    })
-    .then(response => response.json())
-    .then(data => {
-      console.log(data);
-      document.getElementById('other-player').innerHTML = data.other_player;
-      document.getElementById('this-player').innerHTML = data.this_player;
-      // Clear all cards in the cards div
-      Array.from(document.getElementsByClassName('cards')).forEach(cards => { cards.innerHTML = '' });
 
-      console.log(data)
-      data.other_player_hand.cards.forEach(card => {
-        let img = document.createElement('img');
-        let card_name = card.rank + '_' + card.suit;
-        img.src = `http://localhost:5000/static/cards/${card_name}.png`;
-        img.alt = `${card_name} card`;
-        img.className = 'card';
-        document.getElementById('other-cards').appendChild(img);
+  function onStandPressed(event) {
+    fetch('http://localhost:5000/api/turn/{{room_id}}',
+      {
+        method: 'POST',
+        body: JSON.stringify({ action: 'STAND' }),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': localStorage.getItem('Token')
+        }
+      })
+      .then(response => response.json())
+      .then(data => {
+        console.log(data);
+        makeActionPanelUnpressable()
+      })
+      .catch(error => {
+        alert(error);
       });
-      data.this_player_hand.cards.forEach(card => {
-        let img = document.createElement('img');
-        let card_name = card.rank + '_' + card.suit;
-        img.src = `http://localhost:5000/static/cards/${card_name}.png`;
-        img.alt = `${card_name} card`;
-        img.className = 'card';
-        document.getElementById('this-cards').appendChild(img);
+  }
+
+  function makeActionPanelUnpressable() {
+    let deck = document.getElementById('deck')
+    deck.style.cursor = 'default';
+    deck.onmouseover = () => {
+      deck.style.boxShadow = 'none';
+    };
+
+    // Disable the stand button
+    let standButton = document.getElementById('stand-button');
+    standButton.disabled = true;
+  }
+
+  function makeDeckPressable() {
+    let deck = document.getElementById('deck')
+    deck.style.cursor = 'pointer';
+
+    // Add cool shadow effect when hovering over the deck
+    deck.onmouseover = () => {
+      deck.style.boxShadow = '0 0 10px rgba(0, 0, 0, 0.5)';
+    };
+    deck.onmouseout = () => {
+      deck.style.boxShadow = 'none';
+    };
+
+    deck.onclick = () => {
+
+      fetch('http://localhost:5000/api/turn/{{room_id}}',
+        {
+          method: 'POST',
+          body: JSON.stringify({ action: 'HIT' }),
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': localStorage.getItem('Token')
+          }
+        })
+        .then(response => response.json())
+        .then(data => {
+          console.log(data);
+          makeActionPanelUnpressable()
+        })
+        .catch(error => {
+          alert(error);
+        });
+    };
+  }
+
+  function handleVictory(status) {
+
+    switch (status) {
+      case "PLAYER_WON":
+        alert("The Player won the game!")
+        clearInterval(gameStatusCheckInterval)
+        window.location.href = "/"
+        break;
+      case "DEALER_WON":
+        alert("The Dealer won the game!")
+        clearInterval(gameStatusCheckInterval)
+        window.location.href = "/"
+        break;
+      case "TIE":
+        alert("Its a tie!")
+        clearInterval(gameStatusCheckInterval)
+        window.location.href = "/"
+        break;
+
+      default:
+        break;
+    }
+
+  }
+
+  function UpdateStandStatus(data) {
+    standButton = document.getElementById('stand-status')
+    if (data.other_player_hand.status) {
+      standButton.innerHTML = "Other Player Stood"
+    }
+  }
+
+  function updateBoard() {
+    fetch('http://localhost:5000/api/game/status/{{room_id}}',
+      {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': localStorage.getItem('Token')
+        }
+      })
+      .then(response => response.json())
+      .then(data => {
+        thisPlayerTitle = "You: " + data.this_player
+        otherPlayerTitle = data.other_player
+        console.log(data);
+        if (data.are_you_dealer) {
+          thisPlayerTitle += " (Dealer)"
+        } else {
+          otherPlayerTitle += " (Dealer)"
+        }
+        document.getElementById('other-player').innerHTML = otherPlayerTitle;
+        document.getElementById('this-player').innerHTML = thisPlayerTitle;
+        // Clear all cards in the cards div
+        Array.from(document.getElementsByClassName('cards')).forEach(cards => { cards.innerHTML = '' });
+
+        console.log(data)
+        // Add other player cards to the cards div
+        data.other_player_hand.cards.forEach(card => {
+          let img = document.createElement('img');
+          let cardName = ""
+          if (card.rank == "hidden") {
+            cardName = "back"
+          } else {
+            cardName = card.rank + '_' + card.suit;
+          }
+          img.src = `http://localhost:5000/static/cards/${cardName}.png`;
+          img.alt = `${cardName} card`;
+          img.className = 'card';
+          document.getElementById('other-cards').appendChild(img);
+        });
+
+        // Add current player cards to the cards div
+        data.this_player_hand.cards.forEach(card => {
+          let img = document.createElement('img');
+          let cardName = card.rank + '_' + card.suit;
+          img.src = `http://localhost:5000/static/cards/${cardName}.png`;
+          img.alt = `${cardName} card`;
+          img.className = 'card';
+          document.getElementById('this-cards').appendChild(img);
+        });
+        // Add all turn related interactoins options (make the deck pressable, make the stand button not disabled)
+        if (data.is_your_turn) {
+          // Add STAND button as a child to the action button
+          let standButton = document.getElementById('stand-button');
+          standButton.disabled = false;
+
+          // Make the deck pressable
+          makeDeckPressable()
+
+        }
+        UpdateStandStatus(data)
+
+        handleVictory(data.status)
       });
-    });
+
+  }
+
+  updateBoard()
+  var gameStatusCheckInterval = setInterval(() => {
+    updateBoard()
+  }, 2000);
 
 </script>
 

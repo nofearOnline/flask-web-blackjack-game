@@ -127,7 +127,7 @@ class Hand:
         return total
 
     def get_visable_cards(self):
-        return {"cards": [card.to_json() for card in self.cards if card.visible_for_player]}
+        return {"cards": [card.to_json() if card.visible_for_player else Card("hidden", "").to_json() for card in self.cards], "status": self.status.value}
 
     def to_json(self):
         return {"cards": [card.to_json() for card in self.cards], "status": self.status.value}
@@ -140,7 +140,7 @@ class Game:
         self.player_hand: Hand = Hand([])
         self.dealer_hand: Hand = Hand([])
         self.status: GameStatus = GameStatus.PLAYING
-        self.current_player: PlayerType = PlayerType.PLAYER
+        self.current_player: PlayerType = PlayerType.DEALER
 
     # Load game from a json string
     @classmethod
