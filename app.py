@@ -1,6 +1,7 @@
 
 import json
 import hashlib
+from sys import stderr
 from uuid import uuid4
 from functools import wraps
 
@@ -24,6 +25,7 @@ CORS(app)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///game.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
+app.config.from_pyfile('settings.py')
 
 
 class DBUser(db.Model):
@@ -80,7 +82,7 @@ def authenticated(func):
 
 @app.route('/room/<room_id>', methods=['GET'])
 def waiting_room(room_id):
-    return render_template('room.html', room_id=room_id)
+    return render_template('room.html', room_id=room_id, server_address=app.config['SERVER_ADDRESS'])
 
 
 @app.route('/api/room', methods=['POST'])
@@ -204,7 +206,7 @@ def get_player_type_from_id_and_room(user_id, db_room: DBRoom):
 
 @app.route('/game/<room_id>', methods=['GET'])
 def game(room_id):
-    return render_template('game.html', room_id=room_id)
+    return render_template('game.html', room_id=room_id, server_address=app.config['SERVER_ADDRESS'])
 
 
 @app.route('/api/game/status/<room_id>', methods=['GET'])
@@ -405,7 +407,7 @@ def register():
             "token": token
         }), 201
 
-    return render_template('signup.html')
+    return render_template('signup.html', server_address=app.config['SERVER_ADDRESS'])
 
 
 @app.route('/login', methods=['POST', 'GET'])
@@ -433,7 +435,7 @@ def login():
             "token": user_result.token
         }), 200
 
-    return render_template('login.html')
+    return render_template('login.html', server_address=app.config['SERVER_ADDRESS'])
 
 
 @app.route('/api/user', methods=['GET'])
@@ -460,7 +462,8 @@ def get_user():
 
 @app.route('/', methods=['GET'])
 def home_page():
-    return render_template('home.html')
+    print(app.config['SERVER_ADDRESS'], file=stderr)
+    return render_template('home.html', server_address=app.config['SERVER_ADDRESS'])
 
 # @app.route('/login', methods=['POST', 'GET'])
 # def signup():

@@ -64,7 +64,7 @@
 <script>
   function updateInformation() {
     room_id = "{{room_id}}"
-    fetch("http://localhost:5000/api/room/status/" + room_id,
+    fetch("{{server_address}}/api/room/status/" + room_id,
       {
         headers: {
           "Authorization": localStorage.getItem("Token"),
@@ -113,7 +113,7 @@
   startButton = document.querySelector('.start-button')
   startButton.addEventListener("click", (event) => {
     event.preventDefault()
-    fetch("http://localhost:5000/api/start/" + room_id,
+    fetch("{{server_address}}/api/start/" + room_id,
       {
         method: "POST",
         headers: {

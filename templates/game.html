@@ -107,7 +107,7 @@
     <div class="action-panel">
       <button id="stand-status">Other player did not Stand yet</button>
       <div class="deck" id="deck">
-        <img src="http://localhost:5000/static/cards/back.png" alt="Deck Image" width="120px" height="160px">
+        <img src="{{server_address}}/static/cards/back.png" alt="Deck Image" width="120px" height="160px">
       </div>
       <button class="stand-button" onclick="onStandPressed()" id="stand-button" disabled>STAND</button>
     </div>
@@ -127,7 +127,7 @@
 <script>
 
   function onStandPressed(event) {
-    fetch('http://localhost:5000/api/turn/{{room_id}}',
+    fetch('{{server_address}}/api/turn/{{room_id}}',
       {
         method: 'POST',
         body: JSON.stringify({ action: 'STAND' }),
@@ -172,7 +172,7 @@
 
     deck.onclick = () => {
 
-      fetch('http://localhost:5000/api/turn/{{room_id}}',
+      fetch('{{server_address}}/api/turn/{{room_id}}',
         {
           method: 'POST',
           body: JSON.stringify({ action: 'HIT' }),
@@ -225,7 +225,7 @@
   }
 
   function updateBoard() {
-    fetch('http://localhost:5000/api/game/status/{{room_id}}',
+    fetch('{{server_address}}/api/game/status/{{room_id}}',
       {
         method: 'GET',
         headers: {
@@ -258,7 +258,7 @@
           } else {
             cardName = card.rank + '_' + card.suit;
           }
-          img.src = `http://localhost:5000/static/cards/${cardName}.png`;
+          img.src = `{{server_address}}/static/cards/${cardName}.png`;
           img.alt = `${cardName} card`;
           img.className = 'card';
           document.getElementById('other-cards').appendChild(img);
@@ -268,7 +268,7 @@
         data.this_player_hand.cards.forEach(card => {
           let img = document.createElement('img');
           let cardName = card.rank + '_' + card.suit;
-          img.src = `http://localhost:5000/static/cards/${cardName}.png`;
+          img.src = `{{server_address}}/static/cards/${cardName}.png`;
           img.alt = `${cardName} card`;
           img.className = 'card';
           document.getElementById('this-cards').appendChild(img);

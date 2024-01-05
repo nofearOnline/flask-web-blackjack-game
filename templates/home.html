@@ -98,7 +98,7 @@
 		}
 		// Add JavaScript code here to handle login/logout, create room, and join room buttons
 		// Check if user is logged in using the /user endpoint
-		fetch("http://localhost:5000/api/user", {
+		fetch("{{server_address}}/api/user", {
 			method: "GET",
 			headers: {
 				"Content-Type": "application/json",
@@ -119,7 +119,7 @@
 
 				document.getElementById("create-room-button").style.display = "block";
 				document.getElementById("create-room-button").addEventListener("click", () => {
-					fetch("http://localhost:5000/api/room", {
+					fetch("{{server_address}}/api/room", {
 						method: "POST",
 						headers: {
 							"Authorization": localStorage.getItem("Token"),
@@ -142,7 +142,7 @@
 				document.getElementById("join-room-button").addEventListener("click", () => {
 					var roomId = prompt("Please enter the room id:");
 					if (roomId != null) {
-						fetch("http://localhost:5000/api/join/" + roomId, {
+						fetch("{{server_address}}/api/join/" + roomId, {
 							method: "POST",
 							headers: {
 								"Authorization": localStorage.getItem("Token"),
